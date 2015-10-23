@@ -24,7 +24,24 @@ from __future__ import (absolute_import, division, print_function,
 import metaframe as mf
 
 
-class FrameTest(mf.MetaFrameBase):
+class MyMetaClass(mf.MetaFrame):
+    def _new_pre(cls, *args, **kwargs):
+        # Insert a kwarg
+        kwargs[cls._KEY] = cls._VAL
+        return cls, args, kwargs
+
+    def _init_pre(cls, obj, *args, **kwargs):
+        # Remove the kwarg
+        kwargs.pop(cls._KEY)
+        return obj, args, kwargs
+
+    def _init_post(cls, obj, *args, **kwargs):
+        # change self._val ... to the expected value
+        obj._val = obj._VAL
+        return obj, args, kwargs
+
+
+class FrameTest(mf.MetaFrame.with_metaclass(MyMetaClass, object)):
     _KEY = 'ft'
     _VAL = True
 
@@ -33,24 +50,6 @@ class FrameTest(mf.MetaFrameBase):
 
     def check_val(self):
         return self._val == self._VAL
-
-    @classmethod
-    def _new_pre(cls, *args, **kwargs):
-        # Insert a kwarg
-        kwargs[cls._KEY] = cls._VAL
-        return cls, args, kwargs
-
-    @classmethod
-    def _init_pre(cls, obj, *args, **kwargs):
-        # Remove the kwarg
-        kwargs.pop(cls._KEY)
-        return obj, args, kwargs
-
-    @classmethod
-    def _init_post(cls, obj, *args, **kwargs):
-        # change self._val ... to the expected value
-        obj._val = obj._VAL
-        return obj, args, kwargs
 
 
 def test_run(main=False):

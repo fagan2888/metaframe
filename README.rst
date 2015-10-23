@@ -6,23 +6,27 @@ metaframe
    :alt: PyPi Version
    :scale: 100%
    :target: https://pypi.python.org/pypi/metaframe/
+
 .. image:: https://img.shields.io/pypi/dm/metaframe.svg
    :alt: PyPi Monthly Donwloads
    :scale: 100%
    :target: https://pypi.python.org/pypi/metaframe/
+
 .. image:: https://img.shields.io/pypi/l/metaframe.svg
    :alt: License
    :scale: 100%
    :target: https://github.com/mementum/metaframe/blob/master/LICENSE
+
 .. image:: https://travis-ci.org/mementum/metaframe.png?branch=master
    :alt: Travis-ci Build Status
    :scale: 100%
    :target: https://travis-ci.org/mementum/metaframe
+
 .. image:: https://readthedocs.org/projects/metaframe/badge/?version=latest
    :alt: Documentation Status
    :scale: 100%
    :target: https://readthedocs.org/projects/metaframe/
-.. image:: https://badges.gitter.im/mementum/metaframe.png
+
 .. image:: https://img.shields.io/pypi/pyversions/metaframe.svg
    :alt: Pytghon versions
    :scale: 100%
