@@ -15,9 +15,10 @@ Features:
   - 3 hooks (classmethods)
 
     - ``_new_pre``: called before object creation
+    - ``_new_do``: called for object creation
     - ``_init_pre``: called after object creation / before object initialization
+    - ``_init_do``: called fo object initialization
     - ``_init_post``: called after object initialization
-
 
 Installation
 ============

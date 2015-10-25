@@ -1,5 +1,5 @@
-Documentation
-#############
+Usage
+=====
 
 ``metaframe`` allows placing hooks into the creation/initializaion of objects,
 enabling use cases like:
@@ -8,8 +8,6 @@ enabling use cases like:
 
   - Instance scanning/modification
 
-Usage
-=====
 
 Direct Inheritance
 ------------------
@@ -132,14 +130,45 @@ already being declared in the MetaClass.
 
 The ``FrameTest`` class would now look like this::
 
-    class FrameTest(mf.MetaFrame.with_metaclass(MyMetaClass, object)):
-        _KEY = 'ft'
-        _VAL = True
+  class FrameTest(MyMetaClass.as_metaclass(object)):
+      _KEY = 'ft'
+      _VAL = True
 
-        def __init__(self, *args, **kwargs):
-            self._val = kwargs.get(self._KEY, False)
+      def __init__(self, *args, **kwargs):
+          self._val = kwargs.get(self._KEY, False)
 
-        def check_val(self):
-            return self._val == self._VAL
+      def check_val(self):
+          return self._val == self._VAL
 
 The execution examples remain unchanged.
+
+Alternatively, you can directly MetaFrame-enable a class applying ``MetaFrame``
+as metaclass and defining the methods in the class as ``@classmethods``::
+
+  class FrameTest(mf.MetaFrame.as_metaclass(object)):
+      _KEY = 'ft'
+      _VAL = True
+
+    @classmethod
+    def _new_pre(cls, *args, **kwargs):
+        # Insert a kwarg
+        kwargs[cls._KEY] = cls._VAL
+        return cls, args, kwargs
+
+    @classmethod
+    def _init_pre(cls, obj, *args, **kwargs):
+        # Remove the kwarg
+        kwargs.pop(cls._KEY)
+        return obj, args, kwargs
+
+    @classmethod
+    def _init_post(cls, obj, *args, **kwargs):
+        # change self._val ... to the expected value
+        obj._val = obj._VAL
+        return obj, args, kwargs
+
+      def __init__(self, *args, **kwargs):
+          self._val = kwargs.get(self._KEY, False)
+
+      def check_val(self):
+          return self._val == self._VAL
