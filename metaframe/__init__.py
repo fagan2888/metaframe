@@ -24,4 +24,4 @@ from __future__ import (absolute_import, division, print_function,
 
 from .metaframe import MetaFrame, MetaFrameBase
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
