@@ -41,7 +41,7 @@ class MyMetaClass(mf.MetaFrame):
         return obj, args, kwargs
 
 
-class FrameTest(mf.MetaFrame.with_metaclass(MyMetaClass, object)):
+class FrameTest(MyMetaClass.as_metaclass(object)):
     _KEY = 'ft'
     _VAL = True
 
