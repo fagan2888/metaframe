@@ -31,45 +31,82 @@ class MetaFrame(type):
     def _new_pre(cls, *args, **kwargs):
         '''Called before the object is created.
 
-        Params:
-          - cls: The class which is going to be instantiated
-          - args: To be passed to ``__new__`` for class instantiation
-          - kwargs: To be passed to ``__new__`` for class instantiation
+        Args:
+          cls (automatic): The class which is going to be instantiated
+          args: To be passed to ``__new__`` for class instantiation
+          kwargs: To be passed to ``__new__`` for class instantiation
 
         Returns:
-          cls, args, kwargs: as a tuple
+          cls, args, kwargs as a tuple
 
         The return values need not be the same that were passed
         '''
         return cls, args, kwargs
 
+    def _new_do(cls, *args, **kwargs):
+        '''Called for object creation
+
+        Args:
+          cls (automatic): The class which is going to be instantiated
+          args: To be passed to ``__new__`` for class instantiation
+          kwargs: To be passed to ``__new__`` for class instantiation
+
+        Returns:
+          obj, args, kwargs as a tuple
+
+        Note that in this method the 1st return value is no the 1st
+        passed argument (unlike in the rest of methods) It is the created
+        instance and not the passed class
+
+        The return values need not be the same that were passed
+        '''
+        obj = cls.__new__(cls, *args, **kwargs)
+        return obj, args, kwargs
+
     def _init_pre(cls, obj, *args, **kwargs):
         '''Called after object creation and before the object is init'ed
 
-        Params:
-          - cls: The class which has been instantiated
+        Args:
+          - cls (automatic): The class which has been instantiated
           - obj: The class instance which has been created
           - args: To be passed to ``__init__`` for object initialization
           - kwargs: To be passed to ``__init__`` for object initialization
 
         Returns:
-          obj, args, kwargs: as a tuple
+          obj, args, kwargs as a tuple
 
         The return values need not be the same that were passed
         '''
         return obj, args, kwargs
 
+    def _init_do(cls, obj, *args, **kwargs):
+        '''Called for object initialization
+
+        Args:
+          - cls (automatic): The class which has been instantiated
+          - obj: The class instance which has been created
+          - args: To be passed to ``__init__`` for object initialization
+          - kwargs: To be passed to ``__init__`` for object initialization
+
+        Returns:
+          obj, args, kwargs as a tuple
+
+        The return values need not be the same that were passed
+        '''
+        obj.__init__(*args, **kwargs)
+        return obj, args, kwargs
+
     def _init_post(cls, obj, *args, **kwargs):
         '''Called after object initialization
 
-        Params:
-          - cls: The class which has been instantiated
+        Args:
+          - cls (automatic): The class which has been instantiated
           - obj: The class instance which has been created
           - args: Which were passed to ``__init__`` for object initialization
           - kwargs: Which were passed to ``__init__`` for object initialization
 
         Returns:
-          obj, args, kwargs: as a tuple
+          obj, args, kwargs as a tuple
 
         The return values need not be the same that were passed. But modifying
         ``args`` and/or ``kwargs`` no longer plays a role because the object
@@ -85,19 +122,36 @@ class MetaFrame(type):
         cls, args, kwargs = cls._new_pre(*args, **kwargs)
 
         # Create the object
-        obj = cls.__new__(cls, *args, **kwargs)
+        obj, args, kwargs = cls._new_do(*args, **kwargs)
 
         # Before __init__
         obj, args, kwargs = cls._init_pre(obj, *args, **kwargs)
 
         # Init the object
-        obj.__init__(*args, **kwargs)
+        obj, args, kwargs = cls._init_do(obj, *args, **kwargs)
 
         # After __init__
         obj, args, kwargs = cls._init_post(obj, *args, **kwargs)
 
         # Return the created & init'ed object
         return obj
+
+    @classmethod
+    def as_metaclass(meta, *bases):
+        '''Create a base class with "this metaclass" as metaclass
+
+        Meant to be used in the definition of classes for Py2/3 syntax equality
+
+        Args:
+          bases: a list of base classes to apply (object if none given)
+        '''
+        class metaclass(meta):
+
+            def __new__(cls, name, this_bases, d):
+                # subclass to ensure super works with our methods
+                # mt = type(str('xxxxx'), (meta,), {})
+                return meta(name, bases, d)
+        return type.__new__(metaclass, str('tmpcls'), (), {})
 
     # This is from Armin Ronacher from Flask simplified later by six
     @staticmethod
@@ -113,6 +167,8 @@ class MetaFrame(type):
         return type.__new__(metaclass, str('tmpcls'), (), {})
 
 
-class MetaFrameBase(MetaFrame.with_metaclass(MetaFrame, object)):
-    '''Enables inheritance without having to specify/declare a metaclass'''
+class MetaFrameBase(MetaFrame.as_metaclass(object)):
+    '''Enables a class to MetaFrame-enabled through inheritance without having
+    to specify/declare a metaclass
+    '''
     pass
